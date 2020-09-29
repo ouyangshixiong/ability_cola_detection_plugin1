@@ -14,7 +14,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _version = 'Unknown';
+  String _aiModelInfo = 'Unknown';
 
   @override
   void initState() {
@@ -24,12 +24,12 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
+    String aiModelInfo;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      platformVersion = await AbilityColaDetectionPlugin1.version;
+      aiModelInfo = await AbilityColaDetectionPlugin1.version;
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      aiModelInfo = 'Failed to get platform version.';
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _version = platformVersion;
+      _aiModelInfo = aiModelInfo;
     });
   }
 
@@ -49,8 +49,23 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('目标检测'),
         ),
-        body: Center(
-          child: Text('目标检测版本号: $_version\n'),
+        body: Column(
+          children: <Widget>[
+            Text('loadModel | loadLabel | Paddle-Lite版本号: $_aiModelInfo\n'),
+            RaisedButton(
+              onPressed: () => print("start detect"),
+              color: Colors.lightBlueAccent,
+              child: Text('开始测试', style: TextStyle(fontSize: 10)),
+            ),
+            Text('原图：'),
+            Image.asset("images/11649.jpg"),
+            RaisedButton(
+              onPressed: () => print("view detect picture"),
+              color: Colors.lightBlueAccent,
+              child: Text('查看结果', style: TextStyle(fontSize: 10)),
+            )
+          ],
+
         ),
       ),
     );
