@@ -42,6 +42,15 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  Future<void> startDetect() async {
+    try {
+      print("start detect");
+      await AbilityColaDetectionPlugin1.detectCola;
+    } on PlatformException {
+      print('method call detectCola failed!');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -53,7 +62,7 @@ class _MyAppState extends State<MyApp> {
           children: <Widget>[
             Text('loadModel | loadLabel | Paddle-Lite版本号: $_aiModelInfo\n'),
             RaisedButton(
-              onPressed: () => print("start detect"),
+              onPressed: () => startDetect(),
               color: Colors.lightBlueAccent,
               child: Text('开始测试', style: TextStyle(fontSize: 10)),
             ),

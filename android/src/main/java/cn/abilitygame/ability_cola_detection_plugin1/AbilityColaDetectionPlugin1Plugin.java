@@ -2,6 +2,7 @@ package cn.abilitygame.ability_cola_detection_plugin1;
 
 import android.content.Context;
 import android.util.Log;
+import android.graphics.Bitmap;
 
 import com.baidu.paddle.lite.MobileConfig;
 import com.baidu.paddle.lite.PaddlePredictor;
@@ -14,6 +15,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.annotation.Target;
+import java.nio.ByteBuffer;
 import java.util.Vector;
 
 import androidx.annotation.NonNull;
@@ -43,6 +46,8 @@ public class AbilityColaDetectionPlugin1Plugin implements FlutterPlugin, MethodC
   private Context context;
 
   private PaddlePredictor predictor;
+
+  private TargetDetector detector;
 
   private Vector<String> wordLabels = new Vector<String>();
 
@@ -75,6 +80,23 @@ public class AbilityColaDetectionPlugin1Plugin implements FlutterPlugin, MethodC
         result.success(loaded);
       } catch(Exception e) {
         result.error("501", "Can not load labels", e.toString());
+      }
+    } else if (call.method.equals("detectCola")) {
+      if( call.arguments instanceof byte[] ){
+        if( predictor == null || wordLabels == null || wordLabels.isEmpty() ){
+          result.error("505", "Model and Labels haven't been initialized!",
+                  "predictor:" + predictor + " wordLabels:" + wordLabels);
+        }else{
+          byte[] imageBytes = (byte[])call.arguments;
+          Log.i(TAG, "receive image byte[] from flutter, size:" + imageBytes.length);
+          Bitmap bitMap = Bitmap.createBitmap(1080,1080, Bitmap.Config.ARGB_8888);
+          bitMap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBytes));
+          detector = new TargetDetector(predictor, wordLabels);
+          detector.setInputImage(bitMap);
+          detector.runModel();
+        }
+      }else{
+        Log.e(TAG, "imageBytes transfer error from flutter to android native!");
       }
     } else if (call.method.equals("version")) {
       if( predictor != null ){

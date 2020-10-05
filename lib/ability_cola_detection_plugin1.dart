@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
@@ -15,6 +16,8 @@ class AbilityColaDetectionPlugin1 {
   }
 
   static Future<void> get detectCola async {
-    final String imageFile = await _channel.invokeMethod("detectCola");
+    ByteData testImage = await rootBundle.load('images/11649.jpg');
+    Uint8List imageBytes = testImage.buffer.asUint8List();
+    final String imageFile = await _channel.invokeMethod("detectCola", imageBytes);
   }
 }
