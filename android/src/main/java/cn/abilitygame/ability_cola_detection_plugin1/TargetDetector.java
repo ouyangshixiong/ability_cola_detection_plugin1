@@ -170,6 +170,7 @@ public class TargetDetector {
         }
         end = new Date();
         postprocessTime = (float) (end.getTime() - start.getTime());
+        Log.i(TAG, "detect successfully. time cost:" + postprocessTime + " detect result:"+outputResult);
         return true;
     }
 

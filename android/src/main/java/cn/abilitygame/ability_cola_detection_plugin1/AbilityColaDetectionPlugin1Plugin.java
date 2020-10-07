@@ -1,6 +1,7 @@
 package cn.abilitygame.ability_cola_detection_plugin1;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.graphics.Bitmap;
 
@@ -73,8 +74,9 @@ public class AbilityColaDetectionPlugin1Plugin implements FlutterPlugin, MethodC
         }else{
           byte[] imageBytes = (byte[])call.arguments;
           Log.i(TAG, "receive image byte[] from flutter, size:" + imageBytes.length);
-          Bitmap bitMap = Bitmap.createBitmap(1080,1080, Bitmap.Config.ARGB_8888);
-          bitMap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBytes));
+//          Bitmap bitMap = Bitmap.createBitmap(1080,1080, Bitmap.Config.ARGB_8888);
+          Bitmap bitMap = BitmapFactory.decodeByteArray(imageBytes,0, imageBytes.length);
+//          bitMap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBytes));
           TargetDetector detector = new TargetDetector(ModelFactory.getPredictor(), ModelFactory.getWordLabels());
           detector.setInputImage(bitMap);
           detector.runModel();
