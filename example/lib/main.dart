@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -8,18 +9,57 @@ void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
+/*
+*
+* 这里嵌套StatelessWidget + StatefulWidget的原因是：
+* 需要在initState方法中直接显示弹窗，但是弹窗类需要
+* context，而这个context在MaterialApp类内部的。
+* 还有几种方法可以实现开启App就弹窗。
+* 参考 https://stackoverflow.com/questions/51766977/flutter-showdialogcontext-in-initstate-method
+* */
+
+class MyApp extends StatelessWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      home: new MyHomePage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key}) : super(key: key);
+  @override
+  _MyHomePageState createState() => new _MyHomePageState();
+}
+
+
+class _MyHomePageState extends State<MyHomePage> {
+
+  String _text1 = '原图：';
+
   String _aiModelInfo = 'Unknown';
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    initPlatformState().then((value) {
+      showDialog<void>(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Text('模型加载结果：$_aiModelInfo'),
+          actions: <Widget>[
+            FlatButton(
+              child: const Text('知道了'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        ),
+      );
+    });
+
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -29,7 +69,7 @@ class _MyAppState extends State<MyApp> {
     try {
       aiModelInfo = await AbilityColaDetectionPlugin1.version;
     } on PlatformException {
-      aiModelInfo = 'Failed to get platform version.';
+      aiModelInfo = 'Failed to get paddle version.';
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -42,10 +82,15 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<void> startDetect() async {
+  void startDetect() {
     try {
       print("start detect");
-      await AbilityColaDetectionPlugin1.detectCola;
+      AbilityColaDetectionPlugin1.detectCola.then((rs){
+        print("可乐瓶检测结果:" + (rs?"成功":"失败") );
+        setState(() {
+          _text1 = "检测结果：";
+        });
+      });
     } on PlatformException {
       print('method call detectCola failed!');
     }
@@ -53,30 +98,24 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(
-          title: const Text('目标检测'),
+          title: const Text('可乐瓶检测'),
         ),
         body: Column(
           children: <Widget>[
-            Text('loadModel | loadLabel | Paddle-Lite版本号: $_aiModelInfo\n'),
+            Text('$_text1'),
+            Image.asset("images/11649.jpg"),
             RaisedButton(
               onPressed: () => startDetect(),
               color: Colors.lightBlueAccent,
-              child: Text('开始测试', style: TextStyle(fontSize: 10)),
+              child: Text('可乐瓶检测', style: TextStyle(fontSize: 10)),
             ),
-            Text('原图：'),
-            Image.asset("images/11649.jpg"),
-            RaisedButton(
-              onPressed: () => print("view detect picture"),
-              color: Colors.lightBlueAccent,
-              child: Text('查看结果', style: TextStyle(fontSize: 10)),
-            )
+
           ],
 
         ),
-      ),
-    );
+      );
   }
+
 }

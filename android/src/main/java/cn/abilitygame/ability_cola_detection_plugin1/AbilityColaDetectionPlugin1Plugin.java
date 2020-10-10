@@ -79,7 +79,12 @@ public class AbilityColaDetectionPlugin1Plugin implements FlutterPlugin, MethodC
 //          bitMap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBytes));
           TargetDetector detector = new TargetDetector(ModelFactory.getPredictor(), ModelFactory.getWordLabels());
           detector.setInputImage(bitMap);
-          detector.runModel();
+          boolean rs = detector.runModel();
+          if( rs ) {
+            result.success(rs);
+          } else {
+            result.error("506","Detect failed", "");
+          }
         }
       }else{
         Log.e(TAG, "imageBytes transfer error from flutter to android native!");

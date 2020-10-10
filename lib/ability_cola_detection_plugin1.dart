@@ -15,9 +15,9 @@ class AbilityColaDetectionPlugin1 {
     return loadModelFlag.toString() + "|" + loadLabelFlag.toString() + "|" + version;
   }
 
-  static Future<void> get detectCola async {
+  static Future<bool> get detectCola async {
     ByteData testImage = await rootBundle.load('images/11649.jpg');
     Uint8List imageBytes = testImage.buffer.asUint8List();
-    final String imageFile = await _channel.invokeMethod("detectCola", imageBytes);
+    return await _channel.invokeMethod("detectCola", imageBytes);
   }
 }
